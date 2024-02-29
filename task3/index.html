@@ -1,0 +1,36 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChatGPT Web Application</title>
+</head>
+<body>
+  <div id="chat-box"></div>
+  <input type="text" id="input-box">
+  <button id="send-button">Send</button>
+
+  <script>
+    const ws = new WebSocket('ws://localhost:3000');
+
+    ws.onopen = function () {
+      console.log('WebSocket connection established');
+    };
+
+    ws.onmessage = function (event) {
+      const chatBox = document.getElementById('chat-box');
+      const message = document.createElement('div');
+      message.textContent = event.data;
+      chatBox.appendChild(message);
+    };
+
+    document.getElementById('send-button').addEventListener('click', function () {
+      const inputBox = document.getElementById('input-box');
+      const message = inputBox.value;
+      inputBox.value = '';
+      ws.send(message);
+    });
+  </script>
+</body>
+</html>

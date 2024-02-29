@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Expense Tracker</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+    }
+    #expenses {
+        margin-bottom: 20px;
+    }
+    #expenses li {
+        list-style: none;
+        border-bottom: 1px solid #ccc;
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+    }
+    #expenses li span {
+        margin-right: 10px;
+    }
+    .btn {
+        padding: 5px 10px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        border-radius: 3px;
+    }
+</style>
+</head>
+<body>
+<h1>Expense Tracker</h1>
+<form id="expenseForm">
+    <input type="text" id="expenseDescription" placeholder="Enter description">
+    <input type="number" id="expenseAmount" placeholder="Enter amount">
+    <button type="submit" class="btn">Add Expense</button>
+</form>
+<ul id="expenses"></ul>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const expenseForm = document.getElementById('expenseForm');
+        const expenseDescription = document.getElementById('expenseDescription');
+        const expenseAmount = document.getElementById('expenseAmount');
+        const expensesList = document.getElementById('expenses');
+
+        let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+
+        function renderExpenses() {
+            expensesList.innerHTML = '';
+            expenses.forEach((expense, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span>${expense.description}</span><span>$${expense.amount}</span>
+                <button class="btn edit-btn" data-index="${index}">Edit</button>
+                <button class="btn delete-btn" data-index="${index}">Delete</button>`;
+                expensesList.appendChild(li);
+            });
+        }
+
+        function addExpense(description, amount) {
+            expenses.push({ description, amount });
+            localStorage.setItem('expenses', JSON.stringify(expenses));
+            renderExpenses();
+        }
+
+        function deleteExpense(index) {
+            expenses.splice(index, 1);
+            localStorage.setItem('expenses', JSON.stringify(expenses));
+            renderExpenses();
+        }
+
+        function editExpense(index, description, amount) {
+            expenses[index] = { description, amount };
+            localStorage.setItem('expenses', JSON.stringify(expenses));
+            renderExpenses();
+        }
+
+        expenseForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const description = expenseDescription.value.trim();
+            const amount = expenseAmount.value.trim();
+            if (description && amount) {
+                addExpense(description, amount);
+                expenseDescription.value = '';
+                expenseAmount.value = '';
+            }
+        });
+
+        expensesList.addEventListener('click', function(e) {
+            if (e.target.classList.contains('delete-btn')) {
+                const index = e.target.dataset.index;
+                deleteExpense(index);
+            } else if (e.target.classList.contains('edit-btn')) {
+                const index = e.target.dataset.index;
+                const { description, amount } = expenses[index];
+                const newDescription = prompt('Enter new description:', description);
+                const newAmount = prompt('Enter new amount:', amount);
+                if (newDescription !== null && newAmount !== null) {
+                    editExpense(index, newDescription, newAmount);
+                }
+            }
+        });
+
+        renderExpenses();
+    });
+</script>
+</body>
+</html>
